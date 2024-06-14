@@ -1,6 +1,7 @@
 package com.instagram.instagrambe.entity;
 
-import java.sql.Date;
+
+import java.util.Date;
 
 import org.hibernate.annotations.UuidGenerator;
 
