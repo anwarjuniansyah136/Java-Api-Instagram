@@ -44,6 +44,8 @@ public class CommentServiceImpl implements CommentService{
         comment.setCommentText(commentText);
         comment.setColumnDate(convertToDate(LocalDateTime.now()));
         commentRepository.save(comment);
+        post.setCommentCount(post.getCommentCount()+1);
+        postRepository.save(post);
         
         return "Comment Successfully";
     }
@@ -62,7 +64,11 @@ public class CommentServiceImpl implements CommentService{
 
     @Override
     public String deleteComment(String commentId) {
-        commentRepository.deleteById(commentId);
+        Comment comment = commentRepository.getReferenceById(commentId);
+        Post post = comment.getPost();
+        commentRepository.delete(comment);
+        post.setCommentCount(post.getCommentCount()-1);
+        
         return "Delete Success";
     }
 

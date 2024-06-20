@@ -20,7 +20,7 @@ import com.instagram.instagrambe.repository.PostRepository;
 import com.instagram.instagrambe.repository.UserRepository;
 
 @Service
-public class LikeServiceImpl implements LikeService{
+public class LikeServiceImpl implements LikeService {
     @Autowired
     PostRepository postRepository;
 
@@ -36,17 +36,19 @@ public class LikeServiceImpl implements LikeService{
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         User user = userRepository.findByUsername(username);
-        
+
         TableLikes like = new TableLikes();
         like.setPost(post);
         like.setUser(user);
         like.setLikeDate(convertToDate(LocalDateTime.now()));
 
         likesRepository.save(like);
+        post.setLikesCount(post.getLikesCount() + 1);
+        postRepository.save(post);
         return "Success";
     }
 
-    private Date convertToDate(LocalDateTime localDateTime){
+    private Date convertToDate(LocalDateTime localDateTime) {
         return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
 
@@ -56,7 +58,9 @@ public class LikeServiceImpl implements LikeService{
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         User user = userRepository.findByUsername(username);
-        likesRepository.deleteByPostAndUser(post,user);
+        likesRepository.deleteByPostAndUser(post, user);
+        post.setLikesCount(post.getLikesCount() - 1);
+        postRepository.save(post);
         return "Success";
     }
 
@@ -64,14 +68,14 @@ public class LikeServiceImpl implements LikeService{
     public List<LikeResponseDto> getByPost(String postId) {
         Post post = postRepository.getReferenceById(postId);
         List<TableLikes> likes = likesRepository.findAllByPost(post);
-        return likes.stream().map(this :: toLikeResponseDto).collect(Collectors.toList());
+        return likes.stream().map(this::toLikeResponseDto).collect(Collectors.toList());
     }
 
-    private LikeResponseDto toLikeResponseDto(TableLikes likes){
+    private LikeResponseDto toLikeResponseDto(TableLikes likes) {
         return LikeResponseDto.builder()
-        .postId(likes.getPost().getPostId())
-        .username(likes.getUser().getUsername())
-        .build();
+                .postId(likes.getPost().getPostId())
+                .username(likes.getUser().getUsername())
+                .build();
     }
-    
+
 }

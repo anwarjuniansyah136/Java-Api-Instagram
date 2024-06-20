@@ -11,5 +11,7 @@ public interface BlockRepository extends JpaRepository<Block,String>{
 
     List<Block> findByUser(User user);
 
+    List<Block> findByBlocker(User user);
+
     
 }

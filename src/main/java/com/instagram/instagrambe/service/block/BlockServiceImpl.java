@@ -56,7 +56,7 @@ public class BlockServiceImpl implements BlockService{
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         User user = userRepository.findByUsername(username);
-        List<Block> blocks = blockRepository.findByUser(user);
+        List<Block> blocks = blockRepository.findByBlocker(user);
         return blocks.stream().map(this:: toBlockResponseDto).collect(Collectors.toList());
     }
 
