@@ -37,9 +37,9 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public LoginResponseDto login(LoginRequestDto dto) {
         User user = userRepository.findByEmail(dto.getUsername());
-        if(user != null){
+        if (user != null) {
             boolean isMatch = passwordEncoder.matches(dto.getPassword(), user.getPasswordHash());
-            if(isMatch){
+            if (isMatch) {
                 LoginResponseDto response = new LoginResponseDto();
                 response.setUsername(user.getUsername());
                 response.setRole(user.getRole().getRoleName());
@@ -47,7 +47,7 @@ public class LoginServiceImpl implements LoginService {
                 return response;
             }
         }
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Invalid Username or Password");
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Username or Password");
     }
 
     @Override
@@ -57,7 +57,7 @@ public class LoginServiceImpl implements LoginService {
             System.out.println(user);
             generateOtp(user);
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 
@@ -67,7 +67,7 @@ public class LoginServiceImpl implements LoginService {
 
         user.setOtp(encodeOtp);
         user.setOtpReqTime(new Date());
-        
+
         userRepository.save(user);
         emailService.sendOTPEmail(user.getEmail(), otp);
     }
@@ -76,14 +76,16 @@ public class LoginServiceImpl implements LoginService {
     public void resetPassword(String email, ForgotRequestDto dto) {
         try {
             User user = userRepository.findByEmail(email);
-            if(passwordEncoder.matches(dto.getOneTimePassword(), user.getOtp()) && user.isOtpRequired()){
+            System.out.println("ini adalah user : " + user);
+            if (passwordEncoder.matches(dto.getOneTimePassword(), user.getOtp()) && user.isOtpRequired()) {
+                System.out.println("masuk");
                 user.setOtp(null);
                 user.setOtpReqTime(null);
                 user.setPasswordHash(passwordEncoder.encode(dto.getNewPassword()));
                 userRepository.save(user);
             }
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 }
